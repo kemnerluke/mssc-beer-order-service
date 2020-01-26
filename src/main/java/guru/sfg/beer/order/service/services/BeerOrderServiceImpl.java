@@ -17,6 +17,7 @@
 
 package guru.sfg.beer.order.service.services;
 
+import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.domain.OrderStatusEnum;
@@ -26,7 +27,7 @@ import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
 import guru.sfg.beer.order.service.web.model.BeerOrderDto;
 import guru.sfg.beer.order.service.web.model.BeerOrderPagedList;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,15 +45,17 @@ public class BeerOrderServiceImpl implements BeerOrderService {
     private final BeerOrderRepository beerOrderRepository;
     private final CustomerRepository customerRepository;
     private final BeerOrderMapper beerOrderMapper;
-    private final ApplicationEventPublisher publisher;
+    private final RabbitTemplate rabbitTemplate;
+
+
 
     public BeerOrderServiceImpl(BeerOrderRepository beerOrderRepository,
                                 CustomerRepository customerRepository,
-                                BeerOrderMapper beerOrderMapper, ApplicationEventPublisher publisher) {
+                                BeerOrderMapper beerOrderMapper, RabbitTemplate rabbitTemplate) {
         this.beerOrderRepository = beerOrderRepository;
         this.customerRepository = customerRepository;
         this.beerOrderMapper = beerOrderMapper;
-        this.publisher = publisher;
+        this.rabbitTemplate=rabbitTemplate;
     }
 
     @Override
@@ -92,8 +95,8 @@ public class BeerOrderServiceImpl implements BeerOrderService {
 
             log.debug("Saved Beer Order: " + beerOrder.getId());
 
-            //todo impl
-          //  publisher.publishEvent(new NewBeerOrderEvent(savedBeerOrder));
+            rabbitTemplate.convertAndSend(JmsConfig.NEW_BEER_ORDER_QUEUE, savedBeerOrder);
+
 
             return beerOrderMapper.beerOrderToDto(savedBeerOrder);
         }
