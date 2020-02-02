@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.services.Beer;
+package guru.sfg.beer.order.service.services.beer;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

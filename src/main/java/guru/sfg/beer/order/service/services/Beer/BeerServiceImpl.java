@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.services.Beer;
+package guru.sfg.beer.order.service.services.beer;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
